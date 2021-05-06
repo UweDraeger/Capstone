@@ -1,0 +1,19 @@
+---
+title: "Notes - Capstone project"
+author: "Uwe Draeger"
+date: "06/05/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Project Notes
+
+Task 1 - Getting and cleaning the data
+Tokenization - use the tidytext framework rather than trying to build a mini-version independently. 
+
+Section recommends to use random sampling to build a model.
+I question to usefulness of random data compared to just top 500 lines or so.
+The final work will be on the complate dataset, i.e. the "population" - which is of course only a sample of the unavailable universe of all text). For constructing the tools for model building specific parameter values and their representativeness should not matter much.

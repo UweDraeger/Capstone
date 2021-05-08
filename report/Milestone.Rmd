@@ -1,0 +1,54 @@
+---
+title: "Milestone Report"
+author: "Uwe Draeger"
+date: "08/05/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyverse)
+library(tidytext)
+
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## Introduction
+
+## Data
+
+### Loading
+
+### Cleaning
+
+- punctuation
+- "words" consisting of numbers only
+- words starting with numbers
+- whitespace
+
+- URLs, hashtags, twitter handles, email addresses?
+- non-english characters? 
+
+To remove or not to remove profanity (source?)
+To remove or not to remove stopwords?
+
+## Exploratory Analysis
+
+line and word counts
+top 10 frequent words in all sources
+plot
+
+top 10 bigrams
+plot
+
+top 10 trigrams
+plot
+
+
+## Interesting findings
+
+different distributions of words and ngrams in the sources
+with / without stopwords
+
+## Future Steps

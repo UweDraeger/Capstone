@@ -3,6 +3,9 @@ title: "Milestone Report"
 author: "Uwe Draeger"
 date: "08/05/2021"
 output: html_document
+editor_options: 
+  markdown: 
+    wrap: 80
 ---
 
 ```{r setup, include=FALSE}
@@ -16,20 +19,26 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-This milestone report will provide some information on the project 
-thus far. It will use the tidytext package from authors David Robinson and Julia Silge as much as possible.
-
+This milestone report will provide some information on the project thus far. It
+will use the tidytext package from authors David Robinson and Julia Silge as
+much as possible.
 
 ## Data
 
-There are 3 data sets provided - from twitter, from blogs, and from  news feeds. 
-The files are unstructured in the sense that each line holds a single chunk of text of variable length.
+There are 3 data sets provided - from twitter, from blogs, and from news feeds.
+The files are unstructured in the sense that each line holds a single chunk of
+text of variable length.
 
 ### Loading
 
-Data is read with readr::read_lines which preserves the structure of the data with one line. The function allows to limit the number of lines read via the n_max parameter. This may come handy when developing the application as the full data sets are getting rather large. However, for the milestone report the full sets will be used.
+Data is read with readr::read_lines which preserves the structure of the data
+with one line. The function allows to limit the number of lines read via the
+n_max parameter. This may come handy when developing the application as the full
+data sets are getting rather large. However, for the milestone report the full
+sets will be used.
 
-Specific path and file names are set to load all 3 data files for further analysis. 
+Specific path and file names are set to load all 3 data files for further
+analysis.
 
 ```{r load, include=FALSE}
 
@@ -51,21 +60,33 @@ news_data <- read_lines(paste0(data_dir, "/", nw_file_name),
 
 ```
 
-Data source       | number of lines
-------------------|-------------------------
-en_US.twitter.txt | `r length(twitter_data)`
-en_US.blogs.txt   | `r length(blogs_data)`
-en_US.news.txt    | `r length(news_data)`
+```{r table1}
+
+# prepare a tibble
+mytable1 <- tribble(
+        ~data_source, ~number_lines,
+        tw_file_name, length(twitter_data),
+        bl_file_name, length(blogs_data),
+        nw_file_name, length(news_data)
+        )
+
+mytable1
+
+```
 
 ### Cleaning
 
-The first step is to "tokenize" each data set (corpora) into smaller pieces. 
+The first step is to "tokenize" each data set (corpora) into smaller pieces.
 
-We start at the word level which will allow us to analyze the count and frequency of the words in each corpus.
+We start at the word level which will allow us to analyze the count and
+frequency of the words in each corpus.
 
-Using the tokenization process provided with the tidytext package immediately strips punctuation while converting all letters to lower case. In order to reduce the number of words to "real" words we remove all words that do not start with a letter.
+Using the tokenization process provided with the tidytext package immediately
+strips punctuation while converting all letters to lower case. In order to
+reduce the number of words to "real" words we remove all words that do not start
+with a letter.
 
-```{r tokenization, include=FALSE}
+```{r tokenization}
 
 # prepare tibbles 
 tw_text <- tibble(line = 1:length(twitter_data), text = twitter_data)
@@ -75,45 +96,127 @@ nw_text <- tibble(line = 1:length(news_data), text = news_data)
 # tokenize these tibbles - separate into words 
 tw_words <- tw_text %>%
         unnest_tokens(word, text) %>%
-        filter(str_starts(word, "[a-z]") == TRUE) %>%
-        count(word, sort = TRUE)
+        filter(str_starts(word, "[a-z]") == TRUE)
 bl_words <- bl_text %>% 
         unnest_tokens(word, text) %>%
-        filter(str_starts(word, "[a-z]") == TRUE) %>%
-        count(word, sort = TRUE)
+        filter(str_starts(word, "[a-z]") == TRUE)
 nw_words <- nw_text %>% 
         unnest_tokens(word, text) %>%
-        filter(str_starts(word, "[a-z]") == TRUE) %>%
+        filter(str_starts(word, "[a-z]") == TRUE)
+
+```
+
+For some kinds of analyses the removal of so-called stop words is recommended.
+Stop words are the most common words like "the", "of", "to", etc. which may not
+add value in certain analyses.\
+In our case, removing these stop words may be counter-productive given the
+attempt to build a tool to predict the next word.
+
+## Exploratory Analysis
+
+Table 2 shows the total number of lines and words extracted.
+
+```{r table2}
+
+# prepare tibble
+mytable2 <- tribble(
+        ~data_source, ~number_lines, ~total_number_words,
+        "twitter", length(twitter_data), nrow(tw_words), 
+        "blogs", length(blogs_data), nrow(bl_words), 
+        "news", length(news_data), nrow(nw_words)
+        )
+mytable2
+```
+
+Given the much larger number of lines in the twitter data there are comparably
+few words. This is likely caused by twitter's limited number of characters per
+post.
+
+In a next step we count the number of unique words and sort the data by
+frequency.
+
+```{r further_tokenization}
+
+# add unique word count 
+tw_words <- tw_words %>%
+        count(word, sort = TRUE)
+bl_words <- bl_words %>% 
+        count(word, sort = TRUE)
+nw_words <- nw_words %>% 
         count(word, sort = TRUE)
 
 ```
 
-For some kinds of analyses the removal of so-called stop words is recommended. Stop words are the most common words like "the", "of", "to", etc. which may unnecessarily inflate the analysis base. 
-Removing these stop words may not be helpful in our case of attempting to build a prediction tool.
+```{r table3}
 
+# prepare tibble
+mytable3 <- tribble(
+        ~data_source, ~number_unique_words,
+        "twitter", nrow(tw_words), 
+        "blogs", nrow(bl_words), 
+        "news", nrow(nw_words)
+        )
+mytable3
+```
 
-## Exploratory Analysis
+The next tables shows the top 10 words.
 
-line and word counts
-average number of words per line
-top 10 frequent words in all sources
-plot
+```{r frequencies}
 
-top 10 bigrams
-plot
+# add frequencies and cumulated frequencies
+total_tw_words <- sum(tw_words$n)
+total_bl_words <- sum(bl_words$n)
+total_nw_words <- sum(nw_words$n)
 
-top 10 trigrams
-plot
+tw_words <- tw_words %>%
+        mutate(freq = n / total_tw_words) %>%
+        mutate(cumfreq = cumsum(freq))
+bl_words <- bl_words %>% 
+        mutate(freq = n / total_bl_words) %>% 
+        mutate(cumfreq = cumsum(freq))
+nw_words <- nw_words %>% 
+        mutate(freq = n / total_nw_words) %>% 
+        mutate(cumfreq = cumsum(freq))
 
+```
 
+twitter
+```{r tw_table4}
+
+tw_words %>% slice_head(n = 10)
+
+```
+
+blogs
+```{r bl_table4}
+
+bl_words %>% slice_head(n = 10)
+
+```
+
+news
+```{r nw_table4, echo=FALSE}
+
+nw_words %>% slice_head(n = 10)
+
+```
+
+line and word counts average number of words per line top 10 frequent words in
+all sources plot
+
+top 10 bigrams plot
+
+top 10 trigrams plot
 
 ## Interesting findings
 
-different distributions of words and ngrams in the sources
-with / without stopwords
-        - what is the percentage of stopwords in the bigrams/trigrams?
+different distributions of words and ngrams in the sources with / without
+stopwords - what is the percentage of stopwords in the bigrams/trigrams?
 
 ## Future Steps
 
-Any chance to consider the type of text when guessing the next word?
-maybe dependent on the application (chat more like twitter, wordpress more like blogs, etc. )
+Any chance to consider the type of text when guessing the next word? maybe
+dependent on the application (chat more like twitter, wordpress more like blogs,
+etc. )
+
+Use the sbo package to creat

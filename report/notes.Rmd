@@ -20,3 +20,12 @@ The final work will be on the complate dataset, i.e. the "population" - which is
 
 
 There is a different approach to analyze a specific text like a book or other work  (where you focus on the relevant words - anti_join(stop_words)) compared to guessing the next word. 
+
+Sampling:
+How many lines do I need/want?
+
+
+http://www.cs.cornell.edu/courses/cs4740/2014sp/lectures/smoothing+backoff.pdf
+Smoothing
+Unknown words
+Evaluation 

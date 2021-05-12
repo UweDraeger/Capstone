@@ -44,14 +44,14 @@ tw_3grams <- tw_text %>%
 
 
 total_tw_words <- sum(tw_words$n)
-# total_bl_words <- sum(bl_words$n)
-# total_nw_words <- sum(nw_words$n)
+total_bl_words <- sum(bl_words$n)
+total_nw_words <- sum(nw_words$n)
 
 tw_words <- tw_words %>%
         mutate(freq = n / total_tw_words) %>%
         mutate(cumfreq = cumsum(freq))
-# bl_words <- bl_words %>% mutate(freq = n / total_bl_words) %>% mutate(cumfreq = cumsum(freq))
-# nw_words <- nw_words %>% mutate(freq = n / total_nw_words) %>% mutate(cumfreq = cumsum(freq))
+bl_words <- bl_words %>% mutate(freq = n / total_bl_words) %>% mutate(cumfreq = cumsum(freq))
+nw_words <- nw_words %>% mutate(freq = n / total_nw_words) %>% mutate(cumfreq = cumsum(freq))
 
 
 # combine all sources

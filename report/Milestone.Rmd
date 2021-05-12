@@ -107,9 +107,9 @@ nw_words <- nw_text %>%
 
 For some kinds of analyses the removal of so-called stop words is recommended.
 Stop words are the most common words like "the", "of", "to", etc. which may not
-add value in certain analyses.\
-In our case, removing these stop words may be counter-productive given the
-attempt to build a tool to predict the next word.
+add much value in certain analyses. In our case, removing these stop words may
+be counter-productive given the attempt to build a tool to predict the next
+word.
 
 ## Exploratory Analysis
 
@@ -132,7 +132,8 @@ Given the much larger number of lines in the twitter data there are comparably
 few words. This is likely caused by twitter's limited number of characters per
 post.
 
-In a next step we count the number of unique words and sort the data by frequency.
+In a next step we count the number of unique words and sort the data by
+frequency.
 
 ```{r further_tokenization}
 
@@ -163,7 +164,7 @@ The next tables show the top 10 words.
 
 Twitter
 
-```{r tw_table}
+```{r tw_freq}
 
 # add frequencies and cumulated frequencies
 total_tw_words <- sum(tw_words$n)
@@ -172,25 +173,41 @@ tw_words <- tw_words %>%
         mutate(freq = n / total_tw_words) %>%
         mutate(cumfreq = cumsum(freq))
 
-tw_words %>% slice_head(n = 10)
-tw_words
-
 ```
 
+---
+output: html_document
+classoption:
+- twocolumn
+---
+
+::: {.columns}
+::: {.column width="50%"}
 ```{r tw_chart}
 
 tw_words %>% 
-  filter(freq > 0.01) %>%
+  slice_head(n = 10)  %>%
   mutate(word = reorder(word, freq)) %>%
   ggplot(aes(x = freq, y = word)) +
   geom_col() +
-  labs(title = "Twitter: Words with a frequency greater than 1%",
+  labs(title = "Twitter: Top 10 words",
        y = NULL)
 
 ```
+:::
 
-blogs
-```{r bl_table4}
+::: {.column width="50%"}
+```{r tw_table}
+
+tw_words %>% slice_head(n = 10)
+
+```
+:::
+:::
+
+Blogs
+
+```{r bl_freq}
 
 total_bl_words <- sum(bl_words$n)
 
@@ -198,24 +215,41 @@ bl_words <- bl_words %>%
         mutate(freq = n / total_bl_words) %>% 
         mutate(cumfreq = cumsum(freq))
 
-bl_words %>% slice_head(n = 10)
-
 ```
 
+---
+output: html_document
+classoption:
+- twocolumn
+---
 
+::: {.columns}
+::: {.column width="50%"}
 ```{r bl_chart}
 
 bl_words %>% 
-  filter(freq > 0.01) %>%
+  slice_head(n = 10)  %>%
   mutate(word = reorder(word, freq)) %>%
   ggplot(aes(x = freq, y = word)) +
   geom_col() +
-  labs(title = "Blogs: Words with a frequency greater than 1%",
+  labs(title = "Blogs: Top 10 words",
        y = NULL)
 
 ```
-news
-```{r nw_table4}
+:::
+
+::: {.column width="50%"}
+```{r bl_table4}
+
+bl_words %>% slice_head(n = 10)
+
+```
+:::
+:::
+
+News
+
+```{r nw_freq}
 
 total_nw_words <- sum(nw_words$n)
 
@@ -223,91 +257,126 @@ nw_words <- nw_words %>%
         mutate(freq = n / total_nw_words) %>% 
         mutate(cumfreq = cumsum(freq))
 
-nw_words %>% slice_head(n = 10)
-
 ```
 
+---
+output: html_document
+classoption:
+- twocolumn
+---
 
+::: {.columns}
+::: {.column width="50%"}
 ```{r nw_chart}
 
 nw_words %>% 
-  filter(freq > 0.01) %>%
+  slice_head(n = 10) %>%
   mutate(word = reorder(word, freq)) %>%
   ggplot(aes(x = freq, y = word)) +
   geom_col() +
-  labs(title = "News: Words with a frequency greater than 1%",
+  labs(title = "News: Top 10 words",
        y = NULL)
 
 ```
+:::
 
+::: {.column width="50%"}
+```{r nw_table4}
 
-top 10 bigrams plot
+nw_words %>% slice_head(n = 10)
 
-```{r tw_2gram_chart}
+```
+:::
+:::
+
+Top 10 bigrams (twitter)
+
+```{r tw_2gram}
 
 # create bigrams
 tw_2grams <- tw_text %>%
         unnest_tokens(bigram, text, token = "ngrams", n = 2)  %>%
         count(bigram, sort = TRUE)
 
+```
+
+```{r tw_2gram_chart}
+
 tw_2grams %>% 
-  filter(n > 25000) %>%
+  slice_head(n = 10)  %>%
   mutate(bigram = reorder(bigram, n)) %>%
   ggplot(aes(x = n, y = bigram)) +
   geom_col() +
-  labs(title = "Twitter: Bigrams with a count greater than 40k",
+  labs(title = "Twitter: Top 10 bigrams",
        y = NULL)
 
 ```
-top 10 trigrams plot
 
-```{r tw_3gram_chart}
+Top 10 trigrams (twitter)
+
+```{r tw_3gram}
 
 # create trigrams 
 tw_3grams <- tw_text %>%
         unnest_tokens(trigram, text, token = "ngrams", n = 3)  %>%
         count(trigram, sort = TRUE)
 
+```
+
+```{r tw_3gram_chart}
+
 tw_3grams %>% 
-  filter(n > 5000) %>%
+  slice_head(n = 10)  %>%
   mutate(trigram = reorder(trigram, n)) %>%
   ggplot(aes(x = n, y = trigram)) +
   geom_col() +
-  labs(title = "Twitter: trigrams with a count greater than 5000",
+  labs(title = "Twitter: Top 10 trigrams",
        y = NULL)
 
 ```
 
 ## Interesting findings
 
-Run time for building twitter 2gram: 3:30 minutes
-Run time for building twitter 3gram: 10:07 minutes
+### Finding 1
 
-different distributions of words and ngrams in the sources 
-Q: Any chance to consider the type of text when guessing the next word? maybe dependent on the application (chat more like twitter, wordpress more like blogs, etc.)?
+The corpora are reasonably different with respect to the words used as well as
+their frequency. This raises the question whether the final application may
+benefit from an assignment of a context specific text source. If the tool is to
+be used in twitter or a chat application a next word prediction tool based on
+the twitter data may give more appropriate results. In a similar line of
+reasoning, a blogging application like wordpress could rely on the blogs data.
 
+We tend to agree but may not follow this course in the capstone project.
+
+### Finding 2
+
+A naive implementation using the full dataset(s) may not be appropriate for time
+and resource reasons. The run time for generating bigrams from twitter data is
+about 3.5 minutes. Run time for building trigrams from the same source is about
+10 minutes. Object sizes are 400 MB and 1.1 GB respectively. An application to
+predict from a 3-word phrase would require four-grams. A similar increase in run
+time and object size can be expected.
 
 
 ## Future Steps
 
+find sensible reductions 
+  sample x rows from twitter, blogs, and news into new corpus
 
 Use the sbo package to create the application
 
-Shiny: keep simple - 
-input: text
-count number of words in input text
-if greater than 3 use only last 3
 
-output: text
-if 
-  3gram found show most likely next word (choice of 3)
-else
-  use last 2 words
-  if 2gram found show most likely next words (choice of 3)
-  else
-    use last 1 word
-    if word found show most likely next words (choice of 3)
-    else
-      show most frequent word (choice of 3)
-      
+Some thoughts on the Shiny app:
+- Simple design
+- input: text 
+-- count number of words in input text if greater than 3 use only last 3
+output: word (text)
+logic:
+if 3gram in list -> return most likely next word (or choice of 3?) 
+  else use last 2 words 
+  if 2gram in list -> return most likely next word 
+    else use last word
+    if word in list -> show most likely next word 
+      else show most frequent word (?)
+
 submit button

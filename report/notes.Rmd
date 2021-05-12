@@ -30,3 +30,31 @@ Smoothing
 Unknown words
 Evaluation 
 
+---
+output: html_document
+classoption:
+- twocolumn
+---
+
+:::::::::::::: {.columns}
+::: {.column width="40%"}
+
+```{r}
+str(iris)
+```
+
+
+:::
+::: {.column width="60%"}
+
+```{r}
+plot(iris[,-5])
+```
+
+
+:::
+::::::::::::::
+
+```{r}
+str(iris)
+```

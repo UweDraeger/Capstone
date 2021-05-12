@@ -67,3 +67,23 @@ dict <- sbo_dictionary(corpus = twitter_data,
                        target = 0.5, 
                        .preprocess = sbo::preprocess,
                        EOS = ".?!:;")
+
+
+
+# mini dataset
+blm_text <- tibble(line = 1:length(blogs_data), text = blogs_data) %>%
+        slice_sample(prop = 0.1)
+
+blm_words <- blm_text %>%
+        unnest_tokens(word, text) %>%
+        filter(str_starts(word, "[a-z]") == TRUE)
+
+blm_words <- blm_words  %>%
+        count(word, sort = TRUE)
+
+total_blm_words <- sum(blm_words$n)
+
+blm_words <- blm_words %>%
+        mutate(freq = n / total_blm_words) %>%
+        mutate(cumfreq = cumsum(freq))
+

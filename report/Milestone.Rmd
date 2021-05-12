@@ -340,13 +340,16 @@ tw_3grams %>%
 ### Finding 1
 
 The corpora are reasonably different with respect to the words used as well as
-their frequency. This raises the question whether the final application may
-benefit from an assignment of a context specific text source. If the tool is to
+their frequency. This raises the question whether a real-life application may
+benefit from being created from a context-related text source. If the tool is to
 be used in twitter or a chat application a next word prediction tool based on
 the twitter data may give more appropriate results. In a similar line of
 reasoning, a blogging application like wordpress could rely on the blogs data.
 
-We tend to agree but may not follow this course in the capstone project.
+Although we agree to such idea we may not follow this course in the capstone project. 
+
+However, any out of sample testing in the model development will have to be based on a test dataset from the very same source the training dataset came from. Using twitter data to train while testing on news data will downward bias the assessed predictive ability.
+
 
 ### Finding 2
 

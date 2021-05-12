@@ -69,7 +69,6 @@ mytable1 <- tribble(
         bl_file_name, length(blogs_data),
         nw_file_name, length(news_data)
         )
-
 mytable1
 
 ```
@@ -126,14 +125,14 @@ mytable2 <- tribble(
         "news", length(news_data), nrow(nw_words)
         )
 mytable2
+
 ```
 
 Given the much larger number of lines in the twitter data there are comparably
 few words. This is likely caused by twitter's limited number of characters per
 post.
 
-In a next step we count the number of unique words and sort the data by
-frequency.
+In a next step we count the number of unique words and sort the data by frequency.
 
 ```{r further_tokenization}
 
@@ -157,66 +156,158 @@ mytable3 <- tribble(
         "news", nrow(nw_words)
         )
 mytable3
+
 ```
 
-The next tables shows the top 10 words.
+The next tables show the top 10 words.
 
-```{r frequencies}
+Twitter
+
+```{r tw_table}
 
 # add frequencies and cumulated frequencies
 total_tw_words <- sum(tw_words$n)
-total_bl_words <- sum(bl_words$n)
-total_nw_words <- sum(nw_words$n)
 
 tw_words <- tw_words %>%
         mutate(freq = n / total_tw_words) %>%
         mutate(cumfreq = cumsum(freq))
-bl_words <- bl_words %>% 
-        mutate(freq = n / total_bl_words) %>% 
-        mutate(cumfreq = cumsum(freq))
-nw_words <- nw_words %>% 
-        mutate(freq = n / total_nw_words) %>% 
-        mutate(cumfreq = cumsum(freq))
+
+tw_words %>% slice_head(n = 10)
+tw_words
 
 ```
 
-twitter
-```{r tw_table4}
+```{r tw_chart}
 
-tw_words %>% slice_head(n = 10)
+tw_words %>% 
+  filter(freq > 0.01) %>%
+  mutate(word = reorder(word, freq)) %>%
+  ggplot(aes(x = freq, y = word)) +
+  geom_col() +
+  labs(title = "Twitter: Words with a frequency greater than 1%",
+       y = NULL)
 
 ```
 
 blogs
 ```{r bl_table4}
 
+total_bl_words <- sum(bl_words$n)
+
+bl_words <- bl_words %>% 
+        mutate(freq = n / total_bl_words) %>% 
+        mutate(cumfreq = cumsum(freq))
+
 bl_words %>% slice_head(n = 10)
 
 ```
 
+
+```{r bl_chart}
+
+bl_words %>% 
+  filter(freq > 0.01) %>%
+  mutate(word = reorder(word, freq)) %>%
+  ggplot(aes(x = freq, y = word)) +
+  geom_col() +
+  labs(title = "Blogs: Words with a frequency greater than 1%",
+       y = NULL)
+
+```
 news
-```{r nw_table4, echo=FALSE}
+```{r nw_table4}
+
+total_nw_words <- sum(nw_words$n)
+
+nw_words <- nw_words %>% 
+        mutate(freq = n / total_nw_words) %>% 
+        mutate(cumfreq = cumsum(freq))
 
 nw_words %>% slice_head(n = 10)
 
 ```
 
-line and word counts average number of words per line top 10 frequent words in
-all sources plot
+
+```{r nw_chart}
+
+nw_words %>% 
+  filter(freq > 0.01) %>%
+  mutate(word = reorder(word, freq)) %>%
+  ggplot(aes(x = freq, y = word)) +
+  geom_col() +
+  labs(title = "News: Words with a frequency greater than 1%",
+       y = NULL)
+
+```
+
 
 top 10 bigrams plot
 
+```{r tw_2gram_chart}
+
+# create bigrams
+tw_2grams <- tw_text %>%
+        unnest_tokens(bigram, text, token = "ngrams", n = 2)  %>%
+        count(bigram, sort = TRUE)
+
+tw_2grams %>% 
+  filter(n > 25000) %>%
+  mutate(bigram = reorder(bigram, n)) %>%
+  ggplot(aes(x = n, y = bigram)) +
+  geom_col() +
+  labs(title = "Twitter: Bigrams with a count greater than 40k",
+       y = NULL)
+
+```
 top 10 trigrams plot
+
+```{r tw_3gram_chart}
+
+# create trigrams 
+tw_3grams <- tw_text %>%
+        unnest_tokens(trigram, text, token = "ngrams", n = 3)  %>%
+        count(trigram, sort = TRUE)
+
+tw_3grams %>% 
+  filter(n > 5000) %>%
+  mutate(trigram = reorder(trigram, n)) %>%
+  ggplot(aes(x = n, y = trigram)) +
+  geom_col() +
+  labs(title = "Twitter: trigrams with a count greater than 5000",
+       y = NULL)
+
+```
 
 ## Interesting findings
 
-different distributions of words and ngrams in the sources with / without
-stopwords - what is the percentage of stopwords in the bigrams/trigrams?
+Run time for building twitter 2gram: 3:30 minutes
+Run time for building twitter 3gram: 10:07 minutes
+
+different distributions of words and ngrams in the sources 
+Q: Any chance to consider the type of text when guessing the next word? maybe dependent on the application (chat more like twitter, wordpress more like blogs, etc.)?
+
+
 
 ## Future Steps
 
-Any chance to consider the type of text when guessing the next word? maybe
-dependent on the application (chat more like twitter, wordpress more like blogs,
-etc. )
 
-Use the sbo package to creat
+Use the sbo package to create the application
+
+Shiny: keep simple - 
+input: text
+count number of words in input text
+if greater than 3 use only last 3
+
+output: text
+if 
+  3gram found show most likely next word (choice of 3)
+else
+  use last 2 words
+  if 2gram found show most likely next words (choice of 3)
+  else
+    use last 1 word
+    if word found show most likely next words (choice of 3)
+    else
+      show most frequent word (choice of 3)
+      
+submit button

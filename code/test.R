@@ -6,6 +6,10 @@ setwd("~/Coursera/Scripts and Data/Capstone")
 data_dir <- file.path(getwd(), "datasets", "final", "en_US")
 tw_file_name <- "en_US.twitter.txt"
 
+con <- file(paste0(data_dir,"/", tw_file_name), "r") 
+twitter_data <- readLines(con, 2360148) 
+close(con)
+
 twitter_data <- read_lines(paste0(data_dir,"/", tw_file_name),
                            skip_empty_rows = TRUE)
 
@@ -64,26 +68,18 @@ evaluation %>% # Accuracy for in-sentence predictions
 
 dict <- sbo_dictionary(corpus = twitter_data, 
                        max_size = 300, 
-                       target = 0.5, 
-                       .preprocess = sbo::preprocess,
+                       target = 0.6, 
+                       .preprocess = preprocess,
                        EOS = ".?!:;")
 
+x <- kgram_freqs_fast(twitter_data, 
+                      N = 2, 
+                      dict, 
+                      erase = "", 
+                      lower_case = TRUE, 
+                      EOS = "")
 
 
-# mini dataset
-blm_text <- tibble(line = 1:length(blogs_data), text = blogs_data) %>%
-        slice_sample(prop = 0.1)
 
-blm_words <- blm_text %>%
-        unnest_tokens(word, text) %>%
-        filter(str_starts(word, "[a-z]") == TRUE)
 
-blm_words <- blm_words  %>%
-        count(word, sort = TRUE)
-
-total_blm_words <- sum(blm_words$n)
-
-blm_words <- blm_words %>%
-        mutate(freq = n / total_blm_words) %>%
-        mutate(cumfreq = cumsum(freq))
 

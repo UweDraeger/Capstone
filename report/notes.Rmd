@@ -7,6 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# knitr::include_graphics("./tw_top10_trigrams.png")
+library(png)
 ```
 
 ## Project Notes
@@ -58,3 +60,5 @@ plot(iris[,-5])
 ```{r}
 str(iris)
 ```
+
+![](tw_top10_trigrams.png)

@@ -11,77 +11,70 @@ nw_file_name <- "en_US.news.txt"
 
 twitter_data <-
         read_lines(paste0(data_dir, "/", tw_file_name), skip_empty_rows = TRUE)
-blogs_data <-
-        read_lines(paste0(data_dir, "/", bl_file_name), skip_empty_rows = TRUE)
-news_data <-
-        read_lines(paste0(data_dir, "/", nw_file_name), skip_empty_rows = TRUE)
-
 tw_text <-
         tibble(line = 1:length(twitter_data), text = twitter_data)
-bl_text <- 
-        tibble(line = 1:length(blogs_data), text = blogs_data)
-nw_text <- 
-        tibble(line = 1:length(news_data), text = news_data)
-
-# tokenization - separate into words 
 tw_words <- tw_text %>% unnest_tokens(word, text) %>% count(word, sort = TRUE)
-bl_words <- bl_text %>% unnest_tokens(word, text) %>% count(word, sort = TRUE)
-nw_words <- nw_text %>% unnest_tokens(word, text) %>% count(word, sort = TRUE)
-
+total_tw_words <- sum(tw_words$n)
+tw_words <- tw_words %>% mutate(freq = n / total_tw_words) %>% mutate(cumfreq = cumsum(freq))
 tw_words %>% 
         slice_head(n = 10)  %>%
         mutate(word = reorder(word, freq)) %>%
         ggplot(aes(x = freq, y = word)) +
         geom_col() +
         geom_text(aes(label = paste0("n = ", n)), hjust = 1.2, colour = "white") +
-        labs(title = "Twitter: Top 10 words", x = "frequency", y = NULL)
-
-
-# tokenization - separate into ngrams
+        labs(title = "Twitter: Top 10 words", 
+             subtitle = "Full sample", x = "frequency", y = NULL)
 tw_2grams <- tw_text %>% 
         unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%
         count(bigram, sort = TRUE)
-tw_3grams <- tw_text %>% 
-        unnest_tokens(trigram, text, token = "ngrams", n = 3) %>% 
-        count(trigram, sort = TRUE)
-
 total_tw_2grams <- sum(tw_2grams$n)
-total_tw_3grams <- sum(tw_3grams$n)
-
-tw_2grams <- tw_2grams %>% 
-        mutate(freq = n / total_tw_2grams)
-tw_3grams <- tw_3grams %>% 
-        mutate(freq = n / total_tw_3grams)
-
+tw_2grams <- tw_2grams %>% mutate(freq = n / total_tw_2grams)
 tw_2grams %>% slice_head(n = 10)  %>%
         mutate(bigram = reorder(bigram, n)) %>%
         ggplot(aes(x = n, y = bigram)) +
         geom_col() +
         geom_text(aes(label = paste0("freq = ", round(freq, 4))), hjust = 1.2, colour = "white") +
-        labs(title = "Twitter: Top 10 bigrams", x = "count", y = NULL)
-
+        labs(title = "Twitter: Top 10 bigrams", 
+             subtitle = "Full sample", x = "count", y = NULL)
+tw_3grams <- tw_text %>% 
+        unnest_tokens(trigram, text, token = "ngrams", n = 3) %>% 
+        count(trigram, sort = TRUE)
+total_tw_3grams <- sum(tw_3grams$n)
+tw_3grams <- tw_3grams %>% mutate(freq = n / total_tw_3grams)
 tw_3grams %>% slice_head(n = 11) %>% 
         mutate(trigram = reorder(trigram, n)) %>%
         filter(trigram != "NA") %>%
         ggplot(aes(x = n, y = trigram)) +
         geom_col() +
         geom_text(aes(label = paste0("freq = ", round(freq, 5))), hjust = 1.2, colour = "white") +
-        labs(title = "Twitter: Top 10 trigrams", x = "count", y = NULL)
+        labs(title = "Twitter: Top 10 trigrams", 
+             subtitle = "Full sample", x = "count", y = NULL)
 
 
+
+blogs_data <-
+        read_lines(paste0(data_dir, "/", bl_file_name), skip_empty_rows = TRUE)
+
+bl_text <- 
+        tibble(line = 1:length(blogs_data), text = blogs_data)
+bl_words <- bl_text %>% unnest_tokens(word, text) %>% count(word, sort = TRUE)
+total_bl_words <- sum(bl_words$n)
+bl_words <- bl_words %>% mutate(freq = n / total_bl_words) %>% mutate(cumfreq = cumsum(freq))
 # bl_2grams <- bl_text %>% unnest_tokens(bigram, text, token = "ngrams", n = 2)  %>% count(bigram, sort = TRUE)
 # bl_3grams <- bl_text %>% unnest_tokens(trigram, text, token = "ngrams", n = 3)  %>% count(trigram, sort = TRUE)
 
+
+
+news_data <-
+        read_lines(paste0(data_dir, "/", nw_file_name), skip_empty_rows = TRUE)
+nw_text <- 
+        tibble(line = 1:length(news_data), text = news_data)
+nw_words <- nw_text %>% unnest_tokens(word, text) %>% count(word, sort = TRUE)
 # nw_2grams <- nw_text %>% unnest_tokens(bigram, text, token = "ngrams", n = 2)  %>% count(bigram, sort = TRUE)
 # nw_3grams <- nw_text %>% unnest_tokens(trigram, text, token = "ngrams", n = 3)  %>% count(trigram, sort = TRUE)
-
-total_tw_words <- sum(tw_words$n)
-total_bl_words <- sum(bl_words$n)
 total_nw_words <- sum(nw_words$n)
-
-tw_words <- tw_words %>% mutate(freq = n / total_tw_words) %>% mutate(cumfreq = cumsum(freq))
-bl_words <- bl_words %>% mutate(freq = n / total_bl_words) %>% mutate(cumfreq = cumsum(freq))
 nw_words <- nw_words %>% mutate(freq = n / total_nw_words) %>% mutate(cumfreq = cumsum(freq))
+
 
 # mini dataset
 set.seed(100)
@@ -97,6 +90,14 @@ total_twm_words <- sum(twm_words$n)
 
 twm_words <- twm_words %>%
         mutate(freq = n / total_twm_words)
+twm_words %>% 
+        slice_head(n = 10)  %>%
+        mutate(word = reorder(word, freq)) %>%
+        ggplot(aes(x = freq, y = word)) +
+        geom_col() +
+        geom_text(aes(label = paste0("n = ", n)), hjust = 1.2, colour = "white") +
+        labs(title = "Twitter: Top 10 words", 
+             subtitle = "10% sample size", x = "frequency", y = NULL)
 
 twm_2grams <- twm_text %>% 
         unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%
@@ -128,4 +129,4 @@ twm_3grams %>% slice_head(n = 11) %>%
         geom_col() +
         geom_text(aes(label = paste0("freq = ", round(freq, 5))), hjust = 1.2, colour = "white") +
         labs(title = "Twitter: Top 10 trigrams", 
-             subtitle = "10% sample size",x = "count", y = NULL)
+             subtitle = "10% sample size", x = "count", y = NULL)

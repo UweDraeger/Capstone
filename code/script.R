@@ -46,7 +46,7 @@ tw_3grams %>% slice_head(n = 11) %>%
         filter(trigram != "NA") %>%
         ggplot(aes(x = n, y = trigram)) +
         geom_col() +
-        geom_text(aes(label = paste0("freq = ", round(freq, 5))), hjust = 1.2, colour = "white") +
+        geom_text(aes(label = paste0("freq = ", round(freq, 6))), hjust = 1.2, colour = "white") +
         labs(title = "Twitter: Top 10 trigrams", 
              subtitle = "Full sample", x = "count", y = NULL)
 
@@ -60,6 +60,15 @@ bl_text <-
 bl_words <- bl_text %>% unnest_tokens(word, text) %>% count(word, sort = TRUE)
 total_bl_words <- sum(bl_words$n)
 bl_words <- bl_words %>% mutate(freq = n / total_bl_words) %>% mutate(cumfreq = cumsum(freq))
+
+bl_words %>% 
+        slice_head(n = 10)  %>%
+        mutate(word = reorder(word, freq)) %>%
+        ggplot(aes(x = freq, y = word)) +
+        geom_col() +
+        geom_text(aes(label = paste0("n = ", n)), hjust = 1.2, colour = "white") +
+        labs(title = "Blogs: Top 10 words", x = "frequency", y = NULL)
+
 # bl_2grams <- bl_text %>% unnest_tokens(bigram, text, token = "ngrams", n = 2)  %>% count(bigram, sort = TRUE)
 # bl_3grams <- bl_text %>% unnest_tokens(trigram, text, token = "ngrams", n = 3)  %>% count(trigram, sort = TRUE)
 
@@ -74,6 +83,14 @@ nw_words <- nw_text %>% unnest_tokens(word, text) %>% count(word, sort = TRUE)
 # nw_3grams <- nw_text %>% unnest_tokens(trigram, text, token = "ngrams", n = 3)  %>% count(trigram, sort = TRUE)
 total_nw_words <- sum(nw_words$n)
 nw_words <- nw_words %>% mutate(freq = n / total_nw_words) %>% mutate(cumfreq = cumsum(freq))
+
+nw_words %>% 
+        slice_head(n = 10) %>%
+        mutate(word = reorder(word, freq)) %>%
+        ggplot(aes(x = freq, y = word)) +
+        geom_col() +
+        geom_text(aes(label = paste0("n = ", n)), hjust = 1.2, colour = "white") +
+        labs(title = "News: Top 10 words", x = "frequency", y = NULL)
 
 
 # mini dataset
@@ -127,6 +144,10 @@ twm_3grams %>% slice_head(n = 11) %>%
         filter(trigram != "NA") %>%
         ggplot(aes(x = n, y = trigram)) +
         geom_col() +
-        geom_text(aes(label = paste0("freq = ", round(freq, 5))), hjust = 1.2, colour = "white") +
+        geom_text(aes(label = paste0("freq = ", round(freq, 6))), hjust = 1.2, colour = "white") +
         labs(title = "Twitter: Top 10 trigrams", 
              subtitle = "10% sample size", x = "count", y = NULL)
+
+
+thresholds <- c(0.1, 0.2, 0.5, 0.9, 0.95, 0.99)
+

@@ -12,7 +12,7 @@ shinyUI(fluidPage(
                         textInput(
                                 inputId = "phrase",
                                 label = "Enter your text",
-                                value = ""),
+                                value = "enter text here"),
                         submitButton(
                                 text = "Go!",
                                 icon = ""

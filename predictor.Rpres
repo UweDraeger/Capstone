@@ -1,0 +1,43 @@
+Predictor
+========================================================
+author: Uwe Draeger
+date: 
+autosize: true
+
+Predictor - Executive Summary
+========================================================
+
+
+Goal: 
+- Build an application to predict the next word given a phrase already typed
+
+Use case:
+- Support typing texts on a smartphone by suggesting 3 words
+- User can pick one suggestion rather than having to type the complete word
+- Increase typing speed and improve user experience
+
+Features:
+- Prediction algorithm based on NLP 
+- Specific text corpus as the base, allows different contexts (chats, scientific reports) as well as different languages
+- Fast response with data held on phone, i.e. works offline 
+
+Application:
+- Proof of concept on the web
+- based on more than 2 million English tweets
+
+Predictor - Approach 
+========================================================
+
+Prediction uses Stupid Backoff smoothing which gives a good trade-off between processing time and resources and predictive ability when applied to large data sets.
+
+Process starts with calculating n-gram frequencies (n-gram: sequence of words of length n) based on the words extracted from the training corpus (tokenization). 
+
+Predictor - 
+========================================================
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Predictor - 
+========================================================

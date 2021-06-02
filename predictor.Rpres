@@ -1,43 +1,84 @@
 Predictor
 ========================================================
-author: Uwe Draeger
+author: Uwe Draeger 
 date: 
-autosize: true
+autosize: true 
+font-family: "Arial" 
+width: 1080
+height: 720
 
-Predictor - Executive Summary
+# Predictor - Executive Summary
 ========================================================
+## Application to predict the next word given a phrase
+ 
+### User benefits:
+- Supports typing texts on a mobile phone by suggesting 3 words 
+- User can pick one suggestion rather than fully typing it 
+- Increases typing speed and improves user experience
 
-
-Goal: 
-- Build an application to predict the next word given a phrase already typed
-
-Use case:
-- Support typing texts on a smartphone by suggesting 3 words
-- User can pick one suggestion rather than having to type the complete word
-- Increase typing speed and improve user experience
-
-Features:
+### Features: 
 - Prediction algorithm based on NLP 
-- Specific text corpus as the base, allows different contexts (chats, scientific reports) as well as different languages
 - Fast response with data held on phone, i.e. works offline 
 
-Application:
-- Proof of concept on the web
-- based on more than 2 million English tweets
+### Application: 
+- Simple proof of concept, based on more than 2 million US English
+tweets
 
-Predictor - Approach 
+### Monetization: 
+- Additional language packs 
+- Presets for specialized text (legal, medical, financial, ...) 
+
+
+# Predictor - Application
 ========================================================
 
-Prediction uses Stupid Backoff smoothing which gives a good trade-off between processing time and resources and predictive ability when applied to large data sets.
+Build from a specific text corpus as the base - while it allows for different contexts (chats, scientific reports) or different languages - currently works based with tweets.
 
-Process starts with calculating n-gram frequencies (n-gram: sequence of words of length n) based on the words extracted from the training corpus (tokenization). 
+Data size (400 MB) can be much smaller at the cost of some loss of prediction quality.
 
-Predictor - 
+### Usage:
+- Enter your text 
+- Pick a suggestion from one of the three buttons, or continue typing  
+
+### Possible future extensions: 
+- May share word list with auto correction or similar apps
+- Enhance word list offline from user inputs to create more customized predictions 
+- Calculate new n-grams in idle time (need to check for battery drain)
+
+# Predictor - Background
 ========================================================
 
-```{r, echo=FALSE}
-plot(cars)
-```
+### NLP approach: 
+**Stupid Backoff (SBO)** - a fast and simple algorithm with prediction
+accuracy scaling with size of input data
 
-Predictor - 
+Calculates n-gram frequencies (n-gram: sequence of words of length n) based on
+the words extracted from a text corpus (tokenization).
+
+Search for next candidate word in n-grams that start with initial phrase, - if found use relative frequency as score, else - reduce n by 1 and repeat, but apply a penalty (lambda between 0 and 1) when calculating score - continue down to unigrams
+
+**=> Returns 3 candidate words with highest scores as predictions**
+
+
+
+
+
+
+
+Predictor - Technical details
 ========================================================
+
+
+Memory needs: ~ 400 MB
+
+Prototype built in R and Shiny
+
+Based on package 'sbo' version 0.5.0 by V. Gherardi
+
+Supporting materials:
+<small>
+[1]:"Large Language Models in Machine Translation", by Th. Brant et al, Proceedings of the 2007 Joint Conference on Empirical Methods in Natural Language Processing and Computational Natural Language Learning, pp. 858-867, Prague, June 2007 <https://www.aclweb.org/anthology/D07-1090.pdf>  
+
+[2]:"Speech and Language Processing", by D. Jurafsky & al, Chapter 3, Draft of
+December 30, 2020 <https://web.stanford.edu/~jurafsky/slp3/>
+</small>
